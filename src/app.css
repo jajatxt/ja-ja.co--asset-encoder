@@ -1,0 +1,77 @@
+@import './styles/tokens.css';
+@import './styles/grid.css';
+
+@font-face {
+	font-family: 'ABC Oracle';
+	src:
+		url('/oracle/ABCOracle-Book.woff2') format('woff2'),
+		url('/oracle/ABCOracle-Book.woff') format('woff');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font: inherit;
+	color: inherit;
+}
+
+html {
+	scrollbar-width: none;
+	font-family: var(--font-body);
+	font-size: var(--text-base);
+	font-weight: 400;
+	line-height: var(--leading-body);
+	color: var(--text-primary);
+	background: var(--surface-page);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	min-height: 100vh;
+}
+
+a {
+	color: inherit;
+	text-decoration: underline;
+}
+
+a:hover {
+	text-decoration: none;
+}
+
+button {
+	background: none;
+	border: none;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+button:hover {
+	text-decoration: none;
+}
+
+button:disabled {
+	opacity: 0.3;
+	cursor: default;
+	text-decoration: none;
+}
+
+img {
+	max-width: 100%;
+	display: block;
+}
+
+input,
+textarea,
+select {
+	border: none;
+	background: transparent;
+	outline: none;
+}
