@@ -1,10 +1,14 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getSanityWriteClient, sanityFetch } from '$lib/server/sanity';
 import { getEnv } from '$lib/server/env';
+import { GEMINI_MODELS, DEFAULT_GEMINI_MODEL } from '$lib/gemini-models';
 
-// Gemini pricing (per 1M tokens)
-const INPUT_COST_PER_MILLION = 2.0;
-const OUTPUT_COST_PER_MILLION = 12.0;
+const VALID_MODEL_IDS: Set<string> = new Set(GEMINI_MODELS.map((m) => m.id));
+
+function resolveModel(model?: string): string {
+	if (model && VALID_MODEL_IDS.has(model)) return model;
+	return DEFAULT_GEMINI_MODEL;
+}
 
 // ---------------------------------------------------------------------------
 // Category schema — fetched from Sanity, cached to avoid per-image refetches
@@ -81,7 +85,6 @@ interface UsageMetadata {
 	promptTokens: number;
 	candidatesTokens: number;
 	totalTokens: number;
-	costUsd: number;
 }
 
 function categorizeError(error: Error & { status?: number }): string {
@@ -117,7 +120,8 @@ async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
 export async function analyzeImage(
 	imageUrl: string,
 	originalFilename: string | null | undefined,
-	platform: App.Platform | undefined
+	platform: App.Platform | undefined,
+	modelOverride?: string
 ) {
 	const imageResponse = await fetch(imageUrl);
 	if (!imageResponse.ok) {
@@ -130,7 +134,7 @@ export async function analyzeImage(
 
 	const genAI = new GoogleGenerativeAI(getEnv('GEMINI_API_KEY', platform));
 	const model = genAI.getGenerativeModel({
-		model: 'gemini-2.0-flash',
+		model: resolveModel(modelOverride),
 		generationConfig: {
 			responseMimeType: 'application/json',
 			temperature: 0.2
@@ -184,9 +188,6 @@ Include 3-5 alternatives ranked by confidence (highest first). If fewer make sen
 	const promptTokens = usageMetadata.promptTokenCount || 0;
 	const candidatesTokens = usageMetadata.candidatesTokenCount || 0;
 	const totalTokens = usageMetadata.totalTokenCount || 0;
-	const costUsd =
-		(promptTokens / 1_000_000) * INPUT_COST_PER_MILLION +
-		(candidatesTokens / 1_000_000) * OUTPUT_COST_PER_MILLION;
 
 	let analysis: AnalysisResult;
 	try {
@@ -213,7 +214,7 @@ Include 3-5 alternatives ranked by confidence (highest first). If fewer make sen
 		analysis,
 		topSuggestion,
 		alternatives,
-		usageMetadata: { promptTokens, candidatesTokens, totalTokens, costUsd } as UsageMetadata
+		usageMetadata: { promptTokens, candidatesTokens, totalTokens } as UsageMetadata
 	};
 }
 
@@ -226,7 +227,8 @@ export async function analyzeAndPatchDocument(
 	docId: string,
 	imageUrl: string,
 	originalFilename: string | null | undefined,
-	platform: App.Platform | undefined
+	platform: App.Platform | undefined,
+	modelOverride?: string
 ) {
 	const client = getSanityWriteClient(platform);
 
@@ -234,7 +236,8 @@ export async function analyzeAndPatchDocument(
 		const { analysis, topSuggestion, alternatives, usageMetadata } = await analyzeImage(
 			imageUrl,
 			originalFilename,
-			platform
+			platform,
+			modelOverride
 		);
 
 		await client

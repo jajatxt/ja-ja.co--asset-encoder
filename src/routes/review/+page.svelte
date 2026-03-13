@@ -104,16 +104,15 @@
 	);
 	let editing = $state<EditState | null>(null);
 	let saving = $state(false);
-	let batchApproving = $state(false);
 	let retrying = $state<string | null>(null);
 	let toasts = $state<Toast[]>([]);
+
+
 
 	const pendingItems = $derived(drafts.filter((d) => d.status === 'pending'));
 	const draftItems = $derived(drafts.filter((d) => d.status === 'draft'));
 	const errorItems = $derived(drafts.filter((d) => d.status === 'error'));
-	const highConfidenceCount = $derived(
-		draftItems.filter((d) => (d.aiConfidence ?? 0) >= 80).length
-	);
+
 
 	// Poll while pending items exist
 	$effect(() => {
@@ -207,33 +206,6 @@
 		}
 	}
 
-	async function handleBatchApprove() {
-		if (!confirm(`Approve ${highConfidenceCount} high-confidence items?`)) return;
-		batchApproving = true;
-		try {
-			const res = await fetch('/api/batch-approve', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ minConfidence: 80 })
-			});
-			if (!res.ok) throw new Error('Batch approve failed');
-			const result = (await res.json()) as { approved?: number; skipped?: number };
-			const approvedIds = draftItems
-				.filter((d) => (d.aiConfidence ?? 0) >= 80)
-				.map((d) => d._id);
-			removedIds = new Set([...removedIds, ...approvedIds]);
-			selectedId = null;
-			editing = null;
-			const count = result.approved ?? highConfidenceCount;
-			addToast(`${count} encoded${result.skipped ? `, ${result.skipped} skipped` : ''}`);
-			invalidateAll();
-		} catch (err) {
-			addToast((err as Error).message);
-		} finally {
-			batchApproving = false;
-		}
-	}
-
 	function openEditor(draft: CuratedAsset) {
 		if (draft.status === 'pending') return;
 		selectedId = draft._id;
@@ -294,15 +266,6 @@
 				{#if errorItems.length > 0}{errorItems.length} failed{/if}
 				{#if data.publishedCount > 0} · {data.publishedCount} encoded{/if}
 			</span>
-			{#if highConfidenceCount > 0}
-				<button
-					type="button"
-					onclick={handleBatchApprove}
-					disabled={batchApproving}
-				>
-					{batchApproving ? 'Approving...' : `Approve high-confidence (${highConfidenceCount})`}
-				</button>
-			{/if}
 		</div>
 
 		<!-- Grid -->
@@ -578,6 +541,8 @@
 	.grid-item.has-selection:not(.is-selected) {
 		opacity: 0.4;
 	}
+
+
 
 	.grid-item.is-stale {
 		opacity: 0.5;

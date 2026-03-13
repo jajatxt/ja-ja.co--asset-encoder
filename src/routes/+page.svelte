@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { GEMINI_MODELS, DEFAULT_GEMINI_MODEL } from '$lib/gemini-models';
+
 	const MAX_CONCURRENT = 3;
 	const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
@@ -18,7 +20,7 @@
 
 	let files = $state<FileItem[]>([]);
 	let errors = $state<FileError[]>([]);
-	let dragOver = $state(false);
+	let selectedModel = $state(DEFAULT_GEMINI_MODEL);
 
 	let inputEl: HTMLInputElement;
 	let mounted = true;
@@ -81,6 +83,7 @@
 		try {
 			const formData = new FormData();
 			formData.append('file', item.file);
+			formData.append('model', selectedModel);
 
 			const res = await fetch('/api/drop', {
 				method: 'POST',
@@ -135,15 +138,6 @@
 		});
 	}
 
-	function handleDrop(e: DragEvent) {
-		e.preventDefault();
-		dragOver = false;
-		const dropped = Array.from(e.dataTransfer?.files ?? []).filter((f) =>
-			f.type.startsWith('image/')
-		);
-		addFiles(dropped);
-	}
-
 	function handleFileSelect(e: Event) {
 		const input = e.target as HTMLInputElement;
 		addFiles(Array.from(input.files ?? []));
@@ -164,29 +158,29 @@
 </svelte:head>
 
 <div class="upload">
-	<!-- Dropzone -->
-	<div
-		class="dropzone"
-		class:drag-over={dragOver}
-		role="button"
-		tabindex="0"
-		ondrop={handleDrop}
-		ondragover={(e) => e.preventDefault()}
-		ondragenter={() => (dragOver = true)}
-		ondragleave={() => (dragOver = false)}
-		onclick={() => inputEl?.click()}
-		onkeydown={(e) => e.key === 'Enter' && inputEl?.click()}
-	>
-		<input
-			bind:this={inputEl}
-			type="file"
-			accept="image/jpeg,image/png,image/webp,image/gif"
-			multiple
-			onchange={handleFileSelect}
-			class="file-input"
-		/>
-		<p>Drop images or click to select</p>
-		<p class="dropzone-hint">JPEG, PNG, WebP, GIF — 20MB max</p>
+	<input
+		bind:this={inputEl}
+		type="file"
+		accept="image/jpeg,image/png,image/webp,image/gif"
+		multiple
+		onchange={handleFileSelect}
+		class="file-input"
+	/>
+
+	<div class="controls">
+		<button type="button" onclick={() => inputEl?.click()}>Select files</button>
+		<span class="hint">JPEG, PNG, WebP, GIF — 20MB max</span>
+	</div>
+
+	<div class="controls">
+		<label class="model-label">
+			Model
+			<select bind:value={selectedModel}>
+				{#each GEMINI_MODELS as m}
+					<option value={m.id}>{m.label}</option>
+				{/each}
+			</select>
+		</label>
 	</div>
 
 	<!-- File list -->
@@ -251,27 +245,37 @@
 		row-gap: var(--grid-gutter);
 	}
 
-	/* Dropzone */
-	.dropzone {
-		grid-column: 2 / 7;
-		padding: var(--space-3xl) 0;
-		cursor: pointer;
-	}
-
-	.dropzone > * {
-		pointer-events: none;
-	}
-
-	.dropzone.drag-over {
-		opacity: 0.3;
-	}
-
 	.file-input {
 		display: none;
 	}
 
-	.dropzone-hint {
-		margin-top: var(--space-xs);
+	/* Controls */
+	.controls {
+		grid-column: 2 / 7;
+		display: flex;
+		gap: var(--space-lg);
+		align-items: baseline;
+	}
+
+	.hint {
+		opacity: 0.3;
+	}
+
+	.model-label {
+		display: flex;
+		gap: var(--grid-gutter);
+		align-items: baseline;
+	}
+
+	.model-label select {
+		-webkit-appearance: none;
+		appearance: none;
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	.model-label select:hover {
+		text-decoration: none;
 	}
 
 	/* File status */
@@ -332,19 +336,10 @@
 	}
 
 	@media (max-width: 768px) {
-		.dropzone {
-			grid-column: 1 / -1;
-		}
-
+		.controls,
 		.files-status,
-		.file-list {
-			grid-column: 1 / -1;
-		}
-
-		.review-link {
-			grid-column: 1 / -1;
-		}
-
+		.file-list,
+		.review-link,
 		.error-list {
 			grid-column: 1 / -1;
 		}

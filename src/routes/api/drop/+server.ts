@@ -8,6 +8,7 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 
 	const formData = await request.formData();
 	const file = formData.get('file');
+	const model = formData.get('model') as string | null;
 
 	if (!file || !(file instanceof File)) {
 		throw error(400, 'No file provided');
@@ -65,7 +66,8 @@ export const POST: RequestHandler = async ({ request, locals, platform }) => {
 		doc._id,
 		imageAsset.url,
 		imageAsset.originalFilename || file.name,
-		platform
+		platform,
+		model || undefined
 	);
 	if (platform?.ctx?.waitUntil) {
 		platform.ctx.waitUntil(analysisPromise);
