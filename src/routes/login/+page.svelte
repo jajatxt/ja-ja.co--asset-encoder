@@ -5,11 +5,11 @@
 </script>
 
 <svelte:head>
-	<title>Login — Asset Encoder</title>
+	<title>Login — Ja Ja Co Admin</title>
 </svelte:head>
 
 <div class="login-page">
-	<h1 class="login-title">Asset Encoder</h1>
+	<h1 class="login-title">Ja Ja Co Admin</h1>
 
 	<form method="POST" use:enhance class="login-form">
 		<label class="login-label">

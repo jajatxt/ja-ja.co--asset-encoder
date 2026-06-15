@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Asset Encoder</title>
+	<title>Ja Ja Co Admin</title>
 	<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 </svelte:head>
 
