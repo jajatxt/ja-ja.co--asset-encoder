@@ -167,12 +167,17 @@
 		class="file-input"
 	/>
 
-	<div class="controls">
+	<div class="intro">
+		<h1>Upload</h1>
+		<p>Drop image candidates into the Ja Ja Co. encoded asset workflow.</p>
+	</div>
+
+	<div class="controls primary-controls">
 		<button type="button" onclick={() => inputEl?.click()}>Select files</button>
 		<span class="hint">JPEG, PNG, WebP, GIF — 20MB max</span>
 	</div>
 
-	<div class="controls">
+	<div class="controls model-controls">
 		<label class="model-label">
 			Model
 			<select bind:value={selectedModel}>
@@ -249,12 +254,36 @@
 		display: none;
 	}
 
+	.intro {
+		grid-column: 2 / 7;
+		display: grid;
+		row-gap: var(--space-md);
+	}
+
+	.intro h1,
+	.intro p {
+		margin: 0;
+		font: inherit;
+	}
+
+	.intro p {
+		opacity: 0.6;
+	}
+
 	/* Controls */
 	.controls {
-		grid-column: 2 / 7;
 		display: flex;
 		gap: var(--space-lg);
 		align-items: baseline;
+	}
+
+	.primary-controls {
+		grid-column: 2 / 7;
+	}
+
+	.model-controls {
+		grid-column: 7 / 11;
+		grid-row: 2;
 	}
 
 	.hint {
@@ -336,6 +365,7 @@
 	}
 
 	@media (max-width: 768px) {
+		.intro,
 		.controls,
 		.files-status,
 		.file-list,

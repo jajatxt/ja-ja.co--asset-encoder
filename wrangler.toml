@@ -1,0 +1,27 @@
+name = "ja-ja-co--asset-encoder"
+account_id = "437dce46af9cbb10303fccd64edb2e1f"
+main = ".svelte-kit/cloudflare/_worker.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
+
+[vars]
+SANITY_API_VERSION = "2025-10-01"
+FRONTEND_ORIGIN = "https://ja-ja.co"
+FRONTEND_ACCESS_LINK_BASE_PATH = "/access"
+
+# Shared D1 database used by the frontend website.
+# Local dev uses Wrangler's local D1 unless you explicitly run a remote Wrangler dev session.
+[[d1_databases]]
+binding = "DB"
+database_name = "ja-ja-co-production"
+database_id = "0d74f9e5-edf0-48e4-a011-47b9efa39530"
+migrations_dir = "migrations"
+
+# Used only when creating current-cycle access grants.
+[[kv_namespaces]]
+binding = "ACTIVE_PATHS"
+id = "5df72f5d69ef4827981e534aaee54831"

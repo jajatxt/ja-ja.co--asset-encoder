@@ -16,8 +16,8 @@
 | Token | Value | Usage |
 |-------|-------|-------|
 | --font-body | 'ABC Oracle', sans-serif | All text. Single typeface, weight 400 only. |
-| --text-base | 14px | The only text size |
-| --leading-body | 1.5 | The only line-height |
+| --text-base | 12px | The only text size |
+| --leading-body | 1.4 | The only line-height |
 
 ## ── Grid ──
 | Token | Value | Usage |
@@ -37,7 +37,8 @@
 | --space-lg | 32px | Subsection gaps |
 | --space-xl | 64px | Section breaks |
 | --space-2xl | 128px | Page-level divisions |
-| --space-3xl | 256px | Major separation |
+| --space-3xl | 192px | Large page-level separation |
+| --space-4xl | 256px | Major separation |
 
 ## ── Shape ──
 | Token | Value | Usage |
@@ -47,7 +48,8 @@
 ## ── Mobile ──
 | Token | Value | Usage |
 |-------|-------|-------|
-| --grid-columns | 7 | Column count at ≤768px (overrides 13) |
+| --grid-columns | 5 | Column count at ≤768px (overrides 13) |
+| --page-padding | 12px | Page inline padding at ≤768px (overrides 40px) |
 
 ## Rules
 - One color: black. One surface: white. No exceptions.

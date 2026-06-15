@@ -14,7 +14,7 @@
 	<form method="POST" use:enhance class="login-form">
 		<label class="login-label">
 			Password
-			<input type="password" name="password" autofocus required class="login-input" />
+			<input type="password" name="password" required class="login-input" />
 		</label>
 
 		{#if form?.error}

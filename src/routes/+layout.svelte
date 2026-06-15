@@ -6,7 +6,9 @@
 
 	const tabs = [
 		{ href: '/', label: 'Upload' },
-		{ href: '/review', label: 'Review' }
+		{ href: '/review', label: 'Review' },
+		{ href: '/access-links', label: 'Access Links' },
+		{ href: '/access-requests', label: 'Requests' }
 	];
 </script>
 
@@ -15,10 +17,15 @@
 </svelte:head>
 
 {#if data.isAuthenticated && $page.url.pathname !== '/login'}
-	<div class="page">
-		<h1 class="heading">Curate</h1>
+	<div class="app-shell">
+		<header class="site-header">
+			<a href="/" class="logo-part ja-left">Ja</a>
+			<a href="/" class="logo-part ja-middle">Ja</a>
+			<a href="/" class="logo-part co-right">Co</a>
+		</header>
 
-		<nav class="nav">
+		<nav class="admin-nav" aria-label="Asset encoder navigation">
+			<p>Encoder</p>
 			{#each tabs as tab}
 				<a href={tab.href} class:active={$page.url.pathname === tab.href}>
 					{tab.label}
@@ -26,54 +33,93 @@
 			{/each}
 		</nav>
 
-		<div class="content">
+		<main class="content">
 			{@render children()}
-		</div>
+		</main>
 	</div>
 {:else}
 	{@render children()}
 {/if}
 
 <style>
-	.page {
+	.app-shell {
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.site-header,
+	.content {
 		display: grid;
 		grid-template-columns: repeat(var(--grid-columns), 1fr);
-		gap: var(--grid-gutter);
+		column-gap: var(--grid-gutter);
 		padding-inline: var(--page-padding);
-		padding-top: var(--space-xl);
-		padding-bottom: var(--space-3xl);
 	}
 
-	.heading {
-		grid-column: 2 / 7;
+	.site-header {
+		padding-block: var(--space-md);
 	}
 
-	.nav {
-		grid-column: 2 / 5;
+	.logo-part {
+		width: fit-content;
+		text-decoration: none;
+	}
+
+	.ja-left {
+		grid-column: 1;
+	}
+
+	.ja-middle {
+		grid-column: 2;
+	}
+
+	.co-right {
+		grid-column: -2;
+	}
+
+	.admin-nav {
+		position: fixed;
+		top: var(--space-xl);
+		right: var(--page-padding);
+		width: calc((100vw - (2 * var(--page-padding)) - (12 * var(--grid-gutter))) / 13);
 		display: flex;
-		gap: var(--space-lg);
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-xs);
+		z-index: 10;
 	}
 
-	.nav a.active {
+	.admin-nav p {
+		margin: 0 0 var(--space-sm);
+	}
+
+	.admin-nav a.active {
 		text-decoration: none;
 		cursor: default;
 	}
 
 	.content {
-		grid-column: 1 / -1;
-		display: grid;
-		grid-template-columns: subgrid;
+		flex: 1;
 		row-gap: var(--grid-gutter);
-		margin-top: var(--space-lg);
+		padding-top: var(--space-xl);
+		padding-bottom: var(--space-3xl);
 	}
 
 	@media (max-width: 768px) {
-		.heading {
-			grid-column: 1 / -1;
+		.admin-nav {
+			position: static;
+			width: auto;
+			padding-inline: var(--page-padding);
+			padding-top: var(--space-md);
 		}
 
-		.nav {
-			grid-column: 1 / -1;
+		.content {
+			padding-top: var(--space-xl);
 		}
+
+		.ja-middle {
+			grid-column: 2;
+		}
+
 	}
 </style>

@@ -28,13 +28,14 @@
 - Using blue or any color for links — links are black with underline
 - Setting font-weight: 500/600/700 on headings — all text is 400
 - Using padding/margin values outside the spacing scale
+- Combining spacing tokens with `calc()` to invent intermediate spacing — choose one token from the scale instead
 - Using spacing scale tokens for column-gap or horizontal gap — column gaps always use --grid-gutter
 - Adding hover background-color changes — hover only removes underline
 - Creating light gray (#f5f5f5) backgrounds for sections — there is one surface: white
 - Using system font stack instead of --font-body (ABC Oracle)
 - Building layouts with flexbox instead of the 13-column grid
 - Adding border-bottom to inputs for visual affordance — no borders (exception: login input)
-- Using any font-size other than --text-base (14px) — there is one size
+- Using any font-size other than --text-base (12px) — there is one size
 - Making headings larger than body text — hierarchy is grid position, not size
 - Defining reusable grid zone tokens — each page composes its own grid-column placements
 - Naming scoped classes `.col-title`, `.col-info` etc. — `.col-{N}` is reserved for grid utilities; use `.field-title`, `.field-info` instead

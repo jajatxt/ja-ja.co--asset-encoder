@@ -26,6 +26,9 @@ npm run dev
 | `SANITY_WRITE_TOKEN` | Create/patch/delete documents and upload images |
 | `SANITY_API_VERSION` | Sanity API version (default: `2025-10-01`) |
 | `GEMINI_API_KEY` | Google Gemini 2.0 Flash for image classification |
+| `FRONTEND_ORIGIN` | Main portfolio origin for creating access links |
+| `FRONTEND_ADMIN_TOKEN` | Shared server token for portfolio admin APIs, including access requests |
+| `FRONTEND_SHARE_LINK_TOKEN` | Legacy/shared server token for the portfolio share-link API |
 
 ## Project Structure
 
@@ -54,6 +57,8 @@ src/
       batch-approve/+server.ts   # POST: bulk approve above confidence threshold
       delete/+server.ts          # DELETE: remove document + image asset
       retry/+server.ts           # POST: reset errored doc, re-run analysis
+    access-links/                 # Admin UI for creating bounded portfolio access links
+    access-requests/              # Admin UI for reviewing public request-access submissions
 ```
 
 ## Deployment

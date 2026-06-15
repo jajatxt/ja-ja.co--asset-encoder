@@ -487,7 +487,7 @@
 {#if toasts.length > 0}
 	<div class="toast-container">
 		{#each toasts as toast (toast.id)}
-			<span class="toast" onclick={() => removeToast(toast.id)}>{toast.message}</span>
+			<button type="button" class="toast" onclick={() => removeToast(toast.id)}>{toast.message}</button>
 		{/each}
 	</div>
 {/if}
@@ -667,6 +667,15 @@
 	}
 
 	.toast {
+		appearance: none;
+		-webkit-appearance: none;
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+		padding: 0;
+		font: inherit;
+		color: inherit;
+		text-align: left;
 		pointer-events: auto;
 		cursor: pointer;
 		animation: fade-in 0.2s;

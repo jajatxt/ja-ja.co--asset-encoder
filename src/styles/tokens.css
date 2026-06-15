@@ -9,8 +9,8 @@
 
   /* ── Typography ── */
   --font-body: 'ABC Oracle', sans-serif;
-  --text-base: 14px;
-  --leading-body: 1.5;
+  --text-base: 12px;
+  --leading-body: 1.4;
 
   /* ── Grid ── */
   --grid-columns: 13;
@@ -27,7 +27,8 @@
   --space-lg: 32px;
   --space-xl: 64px;
   --space-2xl: 128px;
-  --space-3xl: 256px;
+  --space-3xl: 192px;
+  --space-4xl: 256px;
 
   /* ── Shape ── */
   --radius-none: 0;
@@ -36,6 +37,7 @@
 
 @media (max-width: 768px) {
   :root {
-    --grid-columns: 7;
+    --grid-columns: 5;
+    --page-padding: 12px;
   }
 }

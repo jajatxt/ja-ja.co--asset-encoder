@@ -1,20 +1,20 @@
+# Copy to .dev.vars for `npm run dev` with Cloudflare platform bindings.
+# Keep real values out of git.
+
 # Authentication
 AUTH_PASSWORD=your-password-here
 
-# Sanity (project: 0mg3gtri, dataset: production)
+# Sanity
 SANITY_READ_TOKEN=your-sanity-read-token
 SANITY_WRITE_TOKEN=your-sanity-write-token
 SANITY_API_VERSION=2025-10-01
 
-# Google Gemini (image classification)
+# Google Gemini
 GEMINI_API_KEY=your-gemini-api-key
 
 # Frontend URL used when generating access-link URLs
 FRONTEND_ORIGIN=https://ja-ja.co
 FRONTEND_ACCESS_LINK_BASE_PATH=/access
-
-# Shared access/request storage is expected as a Cloudflare D1 binding named DB.
-# Current-cycle links also need the frontend ACTIVE_PATHS KV binding if enabled.
 
 # Optional email sending for approved access requests.
 # Use manual/off to create links without sending; use resend after domain/API setup.
@@ -23,6 +23,6 @@ RESEND_API_KEY=your-resend-api-key
 ACCESS_EMAIL_FROM="JaJa Co <access@ja-ja.co>"
 ACCESS_EMAIL_REPLY_TO=hello@ja-ja.co
 
-# Legacy bridge tokens for request admin APIs until requests move fully to shared D1.
+# Legacy bridge token for request admin API calls.
 FRONTEND_ADMIN_TOKEN=shared-secret-with-frontend
 FRONTEND_SHARE_LINK_TOKEN=shared-secret-with-frontend
