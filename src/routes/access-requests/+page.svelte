@@ -107,11 +107,6 @@
 		return `Subject: ${subject}\n\n${body}`;
 	}
 
-	function mailtoHref(to: string, subject: string, body: string) {
-		const params = new URLSearchParams({ subject, body });
-		return `mailto:${encodeURIComponent(to)}?${params.toString()}`;
-	}
-
 	function createdEmailStatus() {
 		if (!form?.createdUrl) return '';
 		if (form.emailSent) return `Created and emailed to ${form.emailRecipient}`;
@@ -319,7 +314,6 @@
 				<button type="button" onclick={() => copyToClipboard(form?.createdUrl)}>Copy link</button>
 				{#if form.emailRecipient && form.emailSubject && form.emailBody}
 					<button type="button" onclick={() => copyToClipboard(emailDraftText(form.emailSubject ?? '', form.emailBody ?? ''))}>Copy email draft</button>
-					<a href={mailtoHref(form.emailRecipient, form.emailSubject, form.emailBody)}>Open email draft</a>
 				{/if}
 			</div>
 		</div>

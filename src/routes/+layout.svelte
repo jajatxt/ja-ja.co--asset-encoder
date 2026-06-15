@@ -32,6 +32,9 @@
 					{tab.label}
 				</a>
 			{/each}
+			<form method="POST" action="/logout" class="logout-form">
+				<button>Logout</button>
+			</form>
 		</nav>
 
 		<main class="content">
@@ -97,6 +100,21 @@
 	.admin-nav a.active {
 		text-decoration: none;
 		cursor: default;
+	}
+
+	.logout-form {
+		margin-top: var(--space-sm);
+	}
+
+	.logout-form button {
+		width: fit-content;
+		text-align: left;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	.logout-form button:hover {
+		text-decoration: none;
 	}
 
 	.content {
