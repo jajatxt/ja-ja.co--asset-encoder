@@ -442,7 +442,6 @@
 									<div class="selected-pages-field">
 										<div>
 											<p>Selected pages</p>
-											<p class="field-help">Check one or more pages.</p>
 										</div>
 										<div class="checkbox-list">
 											{#if grantableSourcePath(request)}
@@ -622,8 +621,7 @@
 	.request-link-form .email-option { display: grid; grid-template-columns: auto 1fr; column-gap: var(--grid-gutter); }
 	.scope-field, .selected-pages-field { display: grid; row-gap: var(--space-xs); }
 	.scope-options { display: grid; row-gap: var(--space-xs); }
-	.checkbox-list { display: grid; row-gap: var(--space-xs); max-height: 10rem; overflow: auto; scrollbar-width: none; }
-	.checkbox-list::-webkit-scrollbar { display: none; }
+	.checkbox-list { display: grid; row-gap: var(--space-xs); max-height: 10rem; overflow-y: auto; padding-right: var(--space-xs); }
 	.request-link-form .checkbox-option, .request-link-form .scope-option { display: grid; grid-template-columns: auto 1fr; column-gap: var(--grid-gutter); }
 	.request-link-form .scope-option span:last-child { grid-column: 2; }
 	.request-link-form .checkbox-option span, .request-link-form .scope-option span:first-of-type { opacity: 1; }

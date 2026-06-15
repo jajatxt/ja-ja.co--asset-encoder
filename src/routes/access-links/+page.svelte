@@ -217,7 +217,6 @@
 			<div class="selected-pages-field">
 				<div>
 					<p>Selected pages</p>
-					<p class="field-help">Check one or more pages.</p>
 				</div>
 				<div class="checkbox-list">
 					{#each data.pageOptions as option}
@@ -378,12 +377,8 @@
 		display: grid;
 		row-gap: var(--space-xs);
 		max-height: 12rem;
-		overflow: auto;
-		scrollbar-width: none;
-	}
-
-	.checkbox-list::-webkit-scrollbar {
-		display: none;
+		overflow-y: auto;
+		padding-right: var(--space-xs);
 	}
 
 	.checkbox-option {
