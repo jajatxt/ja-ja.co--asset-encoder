@@ -5,5 +5,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const authCookie = event.cookies.get('auth');
 	const authPassword = getEnvOptional('AUTH_PASSWORD', event.platform);
 	event.locals.isAuthenticated = !!authPassword && authCookie === authPassword;
-	return resolve(event);
+	const response = await resolve(event);
+	response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+	return response;
 };

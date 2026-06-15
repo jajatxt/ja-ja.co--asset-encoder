@@ -14,6 +14,7 @@
 
 <svelte:head>
 	<title>Asset Encoder</title>
+	<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 </svelte:head>
 
 {#if data.isAuthenticated && $page.url.pathname !== '/login'}
