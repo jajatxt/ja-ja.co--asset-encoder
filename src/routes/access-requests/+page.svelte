@@ -53,6 +53,7 @@
 			createdUrl?: string;
 			linkedRequestId?: number;
 			revokedId?: number;
+			deletedId?: number;
 			emailRecipient?: string;
 			emailSent?: boolean;
 			emailWarning?: string;
@@ -265,7 +266,6 @@
 <section class="access-requests">
 	<div class="intro">
 		<h1>Access Requests</h1>
-		<p>Review public request-access submissions from {data.frontendOrigin}.</p>
 	</div>
 
 	<nav class="status-filters" aria-label="Status filters">
@@ -274,7 +274,6 @@
 			<a href={hrefFor({ status, access: '', page: 1 })} class:active={data.filters.status === status && !data.filters.access}>{status}</a>
 		{/each}
 		<a href={hrefFor({ status: '', access: 'active', page: 1 })} class:active={data.filters.access === 'active'}>active access</a>
-		<a href={hrefFor({ status: '', access: 'inactive', page: 1 })} class:active={data.filters.access === 'inactive'}>no active access</a>
 	</nav>
 
 	<details class="filter-panel">
@@ -328,6 +327,11 @@
 		<div class="result">
 			<p>Revoked</p>
 			<p>Access link {form.revokedId}</p>
+		</div>
+	{:else if form?.deletedId}
+		<div class="result">
+			<p>Deleted</p>
+			<p>Request row {form.deletedId}</p>
 		</div>
 	{/if}
 
@@ -506,6 +510,19 @@
 							<button form={`review-${request.id}`} name="status" value="new">Restore to review</button>
 						</div>
 					{/if}
+
+					<form
+						method="POST"
+						action="?/deleteRequest"
+						use:enhance
+						class="delete-action secondary-action"
+						onsubmit={(event) => {
+							if (!confirm('Delete this request row? Existing access links will not be revoked.')) event.preventDefault();
+						}}
+					>
+						<input type="hidden" name="id" value={request.id} />
+						<button disabled={!data.sharedDbConfigured}>Delete row</button>
+					</form>
 				</div>
 
 				<div class="linked-links">
@@ -617,7 +634,7 @@
 	input:not([type='checkbox']):not([type='radio']), select { width: 100%; border-bottom: 1px solid currentColor; align-self: start; }
 	button { width: fit-content; text-align: left; text-decoration: underline; cursor: pointer; }
 	button:disabled { opacity: 0.35; cursor: not-allowed; }
-	.intro p, .note, .received, .notice, .error, .result, .linked-links, label span, .scope-field > div:first-child, .selected-pages-field > div:first-child, .request-link-form .scope-option span:last-child { opacity: 0.6; }
+	.note, .received, .notice, .error, .result, .linked-links, label span, .scope-field > div:first-child, .selected-pages-field > div:first-child, .request-link-form .scope-option span:last-child { opacity: 0.6; }
 	.request-link-form .checkbox-option span, .request-link-form .scope-option span:first-of-type { opacity: 1; }
 	.note, .identity, .result { overflow-wrap: anywhere; }
 	@media (max-width: 768px) {

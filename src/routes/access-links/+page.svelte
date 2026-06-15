@@ -166,7 +166,6 @@
 <section class="access-links">
 	<div class="intro">
 		<h1>Access Links</h1>
-		<p>Create access grants for {data.frontendOrigin}.</p>
 	</div>
 
 	{#if !data.sharedDbConfigured}
@@ -457,7 +456,6 @@
 	.result,
 	.error,
 	.empty,
-	.intro p,
 	.recent-heading p,
 	.recent-row p + p,
 	label span,

@@ -24,8 +24,8 @@
 			<a href="/" class="logo-part co-right">Co</a>
 		</header>
 
-		<nav class="admin-nav" aria-label="Asset encoder navigation">
-			<p>Encoder</p>
+		<nav class="admin-nav" aria-label="Admin navigation">
+			<p>Admin</p>
 			{#each tabs as tab}
 				<a href={tab.href} class:active={$page.url.pathname === tab.href}>
 					{tab.label}

@@ -189,7 +189,8 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 	const role = url.searchParams.get('role') ?? '';
 	const reason = url.searchParams.get('reason') ?? '';
 	const q = url.searchParams.get('q') ?? '';
-	const access = url.searchParams.get('access') ?? '';
+	const accessParam = url.searchParams.get('access') ?? '';
+	const access = accessParam === 'active' ? 'active' : '';
 	const sort = url.searchParams.get('sort') ?? 'newest';
 	const page = Math.max(1, Number(url.searchParams.get('page') ?? 1));
 	const limit = 50;
@@ -244,6 +245,22 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 };
 
 export const actions: Actions = {
+	deleteRequest: async ({ request, platform }) => {
+		const data = await request.formData();
+		const db = getDb(platform);
+		const id = Number(data.get('id'));
+
+		if (!db) return fail(400, { error: 'Shared DB binding not configured' });
+		if (!Number.isInteger(id) || id <= 0) return fail(400, { error: 'Invalid request id' });
+
+		try {
+			await db.prepare('DELETE FROM access_request_links WHERE access_request_id = ?').bind(id).run();
+			await db.prepare('DELETE FROM access_requests WHERE id = ?').bind(id).run();
+			return { deletedId: id };
+		} catch (err) {
+			return fail(400, { error: err instanceof Error ? err.message : 'Unable to delete request row' });
+		}
+	},
 	revokeLink: async ({ request, platform }) => {
 		const data = await request.formData();
 		const db = getDb(platform);
