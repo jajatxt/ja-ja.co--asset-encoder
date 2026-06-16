@@ -8,6 +8,7 @@ import {
 	getAccessLinkConfig,
 	getDb,
 	loadPageOptions,
+	loadReadingRoomPathsForSelectedPages,
 	loadRecentAccessLinks,
 	parseAccessWindow,
 	positiveInt,
@@ -30,6 +31,7 @@ interface AccessLinkFormState {
 	accessDurationMinutes?: number;
 	linkExpiresInMinutes?: number;
 	bindToCurrentCycle?: boolean;
+	includeReadingRoomAssets?: boolean;
 }
 
 export const load: PageServerLoad = async ({ platform, url }) => {
@@ -96,9 +98,17 @@ export const actions: Actions = {
 		const maxRedemptions = positiveInt(data.get('maxRedemptions'), 1);
 		const maxUniquePaths = positiveInt(data.get('maxUniquePaths'), 5);
 		const allowedScopes = cleanAllowedScopes(data.getAll('allowedScopes'));
+		const includeReadingRoomAssets = data.get('includeReadingRoomAssets') === 'on';
 		let scopeConfig: ReturnType<typeof buildScopeConfig>;
 		try {
 			scopeConfig = buildScopeConfig(mode, allowedScopes, data.getAll('scopePaths'));
+			if (includeReadingRoomAssets && allowedScopes.includes('selected-paths')) {
+				const readingRoomPaths = await loadReadingRoomPathsForSelectedPages(platform, scopeConfig.scopePaths);
+				scopeConfig = {
+					...scopeConfig,
+					scopePaths: Array.from(new Set([...scopeConfig.scopePaths, ...readingRoomPaths]))
+				};
+			}
 		} catch (err) {
 			return fail(400, {
 				error: err instanceof Error ? err.message : 'Unable to create access link',
@@ -106,7 +116,8 @@ export const actions: Actions = {
 				mode,
 				maxRedemptions,
 				maxUniquePaths,
-				allowedScopes
+				allowedScopes,
+				includeReadingRoomAssets
 			});
 		}
 		const accessWindow = parseAccessWindow(data.get('accessWindow') ?? data.get('accessDurationMinutes'), 10080);
@@ -124,6 +135,7 @@ export const actions: Actions = {
 				maxUniquePaths,
 				allowedScopes,
 				scopePaths: scopeConfig.scopePaths,
+				includeReadingRoomAssets,
 				accessDurationMinutes,
 				linkExpiresInMinutes,
 				bindToCurrentCycle
@@ -153,6 +165,7 @@ export const actions: Actions = {
 				maxUniquePaths,
 				allowedScopes,
 				scopePaths: scopeConfig.scopePaths,
+				includeReadingRoomAssets,
 				accessDurationMinutes,
 				linkExpiresInMinutes,
 				bindToCurrentCycle

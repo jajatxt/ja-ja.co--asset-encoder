@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	type AccessMode = 'full' | 'limited';
 	type AccessScopeKind = 'all' | 'projects' | 'writing' | 'media' | 'system' | 'selected-paths' | 'custom';
-	type AllowedScopeValue = 'all' | 'projects' | 'writing' | 'media' | 'system' | 'selected-paths';
+	type AllowedScopeValue = 'all' | 'projects' | 'writing' | 'media' | 'system' | 'reading-room' | 'selected-paths';
 
 	interface AccessLinkRow {
 		id: number;
@@ -39,6 +39,7 @@
 		accessDurationMinutes?: number;
 		linkExpiresInMinutes?: number;
 		bindToCurrentCycle?: boolean;
+		includeReadingRoomAssets?: boolean;
 	}
 
 	let { data, form } = $props<{
@@ -65,6 +66,7 @@
 		{ value: 'projects', label: 'Projects' },
 		{ value: 'writing', label: 'Writing' },
 		{ value: 'media', label: 'Media', description: 'Video + audio' },
+		{ value: 'reading-room', label: 'Reading Room', description: 'Lookup and image/code pages' },
 		{ value: 'system', label: 'System', description: 'All /s tools and rooms' },
 		{ value: 'selected-paths', label: 'Selected pages' }
 	];
@@ -135,6 +137,7 @@
 		if (prefixes.has('projects')) parts.push('projects');
 		if (prefixes.has('writing')) parts.push('writing');
 		if (prefixes.has('video') || prefixes.has('audio')) parts.push('media');
+		if (prefixes.has('s/reading-room')) parts.push('reading room');
 		if (prefixes.has('s')) parts.push('system');
 		if (link.scopePaths?.length) parts.push(describeSelectedCount(link.scopePaths.length));
 		return parts.length ? parts.join(' + ') : 'custom scope';
@@ -217,8 +220,13 @@
 			<div class="selected-pages-field">
 				<div>
 					<p>Selected pages</p>
+					<p class="field-help">Project and writing selections can also include their image/code pages.</p>
 				</div>
 				<div class="checkbox-list">
+					<label class="checkbox-option">
+						<input name="includeReadingRoomAssets" type="checkbox" checked={form?.includeReadingRoomAssets ?? true} />
+						<span>Include image/code pages for selected projects and writing</span>
+					</label>
 					{#each data.pageOptions as option}
 						<label class="checkbox-option">
 							<input name="scopePaths" type="checkbox" value={option.path} checked={form?.scopePaths?.includes(option.path)} />

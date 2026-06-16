@@ -3,7 +3,8 @@ import { getEnvOptional } from '$lib/server/env';
 
 export type AccessMode = 'full' | 'limited';
 export type AccessScopeKind = 'all' | 'projects' | 'writing' | 'media' | 'system' | 'selected-paths' | 'custom';
-export type AllowedScopeValue = 'all' | 'projects' | 'writing' | 'media' | 'system' | 'selected-paths';
+export type AllowedScopeValue = 'all' | 'projects' | 'writing' | 'media' | 'system' | 'reading-room' | 'selected-paths';
+type GroupScopeValue = Exclude<AllowedScopeValue, 'all' | 'selected-paths'>;
 
 export interface AccessLinkRow {
 	id: number;
@@ -82,20 +83,23 @@ export interface PageOption {
 
 const ACCESS_MODES: AccessMode[] = ['full', 'limited'];
 const ACCESS_SCOPE_KINDS: AccessScopeKind[] = ['all', 'projects', 'writing', 'media', 'system', 'selected-paths', 'custom'];
-const ALLOWED_SCOPE_VALUES: AllowedScopeValue[] = ['all', 'projects', 'writing', 'media', 'system', 'selected-paths'];
-const GROUP_SCOPE_VALUES: Exclude<AllowedScopeValue, 'all' | 'selected-paths'>[] = ['projects', 'writing', 'media', 'system'];
-const GROUP_SCOPE_PREFIXES: Record<Exclude<AllowedScopeValue, 'all' | 'selected-paths'>, string[]> = {
+const ALLOWED_SCOPE_VALUES: AllowedScopeValue[] = ['all', 'projects', 'writing', 'media', 'system', 'reading-room', 'selected-paths'];
+const GROUP_SCOPE_VALUES: GroupScopeValue[] = ['projects', 'writing', 'media', 'system', 'reading-room'];
+const GROUP_SCOPE_PREFIXES: Record<GroupScopeValue, string[]> = {
 	projects: ['projects'],
 	writing: ['writing'],
 	media: ['video', 'audio'],
-	system: ['s']
+	system: ['s'],
+	'reading-room': ['s/reading-room']
 };
-const GROUP_SCOPE_DEFAULT_PATH: Record<Exclude<AllowedScopeValue, 'all' | 'selected-paths'>, string> = {
+const GROUP_SCOPE_DEFAULT_PATH: Record<GroupScopeValue, string> = {
 	projects: '/projects',
 	writing: '/writing',
 	media: '/video',
-	system: '/s/jjcds'
+	system: '/s/jjcds',
+	'reading-room': '/s/reading-room'
 };
+const SINGLE_GROUP_SCOPE_KINDS = new Set<AccessScopeKind>(['projects', 'writing', 'media', 'system']);
 const TOKEN_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
 
 const STATIC_PAGE_OPTIONS: PageOption[] = [
@@ -194,10 +198,42 @@ export function buildScopeConfig(
 	startPath ??= scopePaths[0] ?? (selectedGroups[0] ? GROUP_SCOPE_DEFAULT_PATH[selectedGroups[0]] : '/');
 
 	let scopeKind: AccessScopeKind = 'custom';
-	if (scopePaths.length === 0 && selectedGroups.length === 1) scopeKind = selectedGroups[0];
-	else if (scopePrefixes.length === 0 && scopePaths.length > 0) scopeKind = 'selected-paths';
+	if (scopePaths.length === 0 && selectedGroups.length === 1 && SINGLE_GROUP_SCOPE_KINDS.has(selectedGroups[0] as AccessScopeKind)) {
+		scopeKind = selectedGroups[0] as AccessScopeKind;
+	} else if (scopePrefixes.length === 0 && scopePaths.length > 0) scopeKind = 'selected-paths';
 
 	return { startPath, scopeKind, scopePaths, scopePrefixes };
+}
+
+function normalizeCodePath(raw: string): string | null {
+	const match = raw.match(/^0*(\d+)\s*[-–]\s*(\d+)$/);
+	if (!match) return null;
+	return `/s/reading-room/${parseInt(match[1], 10)}-${parseInt(match[2], 10)}`;
+}
+
+export async function loadReadingRoomPathsForSelectedPages(platform: App.Platform | undefined, paths: string[]): Promise<string[]> {
+	const contentPaths = paths.map((path) => cleanPath(path).replace(/^\/+|\/+$/g, '')).filter(Boolean);
+	const targetPaths = contentPaths.filter((path) => path.startsWith('projects/') || path.startsWith('writing/'));
+	if (targetPaths.length === 0) return [];
+
+	const rows = await sanityFetch<{ codes?: string[] | null }[]>(
+		`*[_type in ["project", "essay"] && defined(slug.current) && select(_type == "essay" => "writing/" + slug.current, "projects/" + slug.current) in $paths] {
+			"codes": select(
+				_type == "project" => coalesce(body[_type == "bodyImage"].asset->{"code": string(category->number) + "-" + string(number)}.code, []) + coalesce(body[_type == "bodyGroup"].items[][_type == "bodyImage"].asset->{"code": string(category->number) + "-" + string(number)}.code, []),
+				_type == "essay" => coalesce(images[]->{"code": string(category->number) + "-" + string(number)}.code, []),
+				[]
+			)
+		}`,
+		{ paths: targetPaths },
+		platform
+	);
+
+	const codePaths = rows
+		.flatMap((row) => row.codes ?? [])
+		.filter((code): code is string => typeof code === 'string')
+		.map(normalizeCodePath)
+		.filter((path): path is string => Boolean(path));
+	return Array.from(new Set(codePaths));
 }
 
 function parseStoredPathList(raw: string | null): string[] {
@@ -326,7 +362,7 @@ export async function createAccessLink(
 	const scopePaths =
 		scopeKind === 'all' || scopeKind === 'projects' || scopeKind === 'writing' || scopeKind === 'media' || scopeKind === 'system'
 			? []
-			: cleanScopePaths(input.scopePaths, scopeKind === 'selected-paths' ? startPath : undefined);
+			: Array.from(new Set(cleanScopePaths(input.scopePaths, scopeKind === 'selected-paths' ? startPath : undefined)));
 	const scopePrefixes = scopeKind === 'custom' ? Array.from(new Set(input.scopePrefixes.map((prefix) => prefix.replace(/^\/+|\/+$/g, '')).filter(Boolean))) : [];
 
 	const result = await db

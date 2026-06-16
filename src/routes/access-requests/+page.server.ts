@@ -10,6 +10,7 @@ import {
 	createAccessLink,
 	getDb,
 	loadPageOptions,
+	loadReadingRoomPathsForSelectedPages,
 	mapAccessLink,
 	parseAccessWindow,
 	positiveInt,
@@ -108,6 +109,7 @@ function describeScopeForEmail(scopeConfig: ReturnType<typeof buildScopeConfig>)
 	if (prefixes.has('projects')) parts.push('Projects');
 	if (prefixes.has('writing')) parts.push('Writing');
 	if (prefixes.has('video') || prefixes.has('audio')) parts.push('Video + audio');
+	if (prefixes.has('s/reading-room')) parts.push('Reading Room');
 	if (prefixes.has('s')) parts.push('System pages');
 	if (scopeConfig.scopePaths.length) parts.push(`${plural(scopeConfig.scopePaths.length, 'selected page')} (${pathListLabel(scopeConfig.scopePaths)})`);
 	return parts.length ? parts.join(' + ') : 'Custom access';
@@ -314,9 +316,17 @@ export const actions: Actions = {
 		const maxRedemptions = positiveInt(data.get('maxRedemptions'), 1);
 		const maxUniquePaths = positiveInt(data.get('maxUniquePaths'), 5);
 		const allowedScopes = cleanAllowedScopes(data.getAll('allowedScopes'));
+		const includeReadingRoomAssets = data.get('includeReadingRoomAssets') === 'on';
 		let scopeConfig: ReturnType<typeof buildScopeConfig>;
 		try {
 			scopeConfig = buildScopeConfig(mode, allowedScopes, data.getAll('scopePaths'), sourcePath);
+			if (includeReadingRoomAssets && allowedScopes.includes('selected-paths')) {
+				const readingRoomPaths = await loadReadingRoomPathsForSelectedPages(platform, scopeConfig.scopePaths);
+				scopeConfig = {
+					...scopeConfig,
+					scopePaths: Array.from(new Set([...scopeConfig.scopePaths, ...readingRoomPaths]))
+				};
+			}
 		} catch (err) {
 			return fail(400, {
 				error: err instanceof Error ? err.message : 'Unable to create access link',
